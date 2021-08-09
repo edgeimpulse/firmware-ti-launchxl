@@ -24,8 +24,7 @@ Edge Impulse enables developers to create the next generation of intelligent dev
 ## Texas Instruments Simplelink SDK
 
 - Uses the TI Simplelink SDK `simplelink_cc13x2_26x2_sdk_5.20.00.52`
-- SDK directory should be next to project directory
-- If this is not desired change `SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR`
+- Set `SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR` in `gcc\makefile` to the path to TI SimpleLink SDK.
 
 ## Building the application
 
