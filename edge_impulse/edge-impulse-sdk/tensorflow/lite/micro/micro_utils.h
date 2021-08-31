@@ -25,6 +25,7 @@ limitations under the License.
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 
 #include "edge-impulse-sdk/tensorflow/lite/c/common.h"
 

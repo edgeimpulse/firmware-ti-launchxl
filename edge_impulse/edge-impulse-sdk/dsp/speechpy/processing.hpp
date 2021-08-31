@@ -437,6 +437,10 @@ namespace processing {
     static int cmvnw(matrix_t *features_matrix, uint16_t win_size = 301, bool variance_normalization = false,
         bool scale = false)
     {
+        if (win_size == 0) {
+            return EIDSP_OK;
+        }
+
         uint16_t pad_size = (win_size - 1) / 2;
 
         int ret;
