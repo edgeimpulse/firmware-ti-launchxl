@@ -29,6 +29,18 @@
 #include "numpy.hpp"
 #include "at_cmds.h"
 
+/* POSIX Header files */
+#include <pthread.h>
+#include <semaphore.h>
+
+void *ei_command_line_thread(void *arg0)
+{
+    while (1) {
+        ei_command_line_handle();
+    }
+    return NULL;
+}
+
 /**
  * @brief Init sensors, load config and run command handler
  * 
@@ -68,13 +80,43 @@ extern "C" int ei_main() {
     /* Setup the command line commands */
     ei_at_register_generic_cmds();
     ei_at_cmd_register("RUNIMPULSE", "Run the impulse", run_nn_normal);
-    // ei_at_cmd_register("RUNIMPULSECONT", "Run the impulse", run_nn_continuous_normal);
+    ei_at_cmd_register("RUNIMPULSECONT", "Run the impulse", run_nn_continuous_normal);
     ei_at_cmd_register("RUNIMPULSEDEBUG", "Run the impulse with extra debug output", run_nn_debug);
     ei_printf("Type AT+HELP to see a list of commands.\r\n> ");
 
     EiDevice.set_state(eiStateFinished);
 
-    while (1) {
-        ei_command_line_handle();
+    pthread_t           thread0;
+    pthread_attr_t      attrs;
+    struct sched_param  priParam;
+    int                 retc;
+    int                 detachState;
+
+    /* Set priority and stack size attributes */
+    pthread_attr_init(&attrs);
+    priParam.sched_priority = 1;
+
+    detachState = PTHREAD_CREATE_DETACHED;
+    retc = pthread_attr_setdetachstate(&attrs, detachState);
+    if (retc != 0) {
+        /* pthread_attr_setdetachstate() failed */
+        while (1);
     }
+
+    pthread_attr_setschedparam(&attrs, &priParam);
+
+    retc |= pthread_attr_setstacksize(&attrs, 3072);
+    if (retc != 0) {
+        /* pthread_attr_setstacksize() failed */
+        while (1);
+    }
+
+    /* Create receive thread */
+    retc = pthread_create(&thread0, &attrs, ei_command_line_thread, NULL);
+    if (retc != 0) {
+        /* pthread_create() failed */
+        while (1);
+    }
+
+    return 0;
 }

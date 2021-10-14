@@ -40,7 +40,7 @@ var Sensors = scripting.addHardware("boostxl_sensors/BOOSTXL-SENSORS");
 
 /* ======== RTOS ======== */
 var RTOS = scripting.addModule("/ti/drivers/RTOS");
-RTOS.name = "NoRTOS";
+RTOS.name = "FreeRTOS";
 
 /* ======== GPIO ======== */
 var GPIO = scripting.addModule("/ti/drivers/GPIO");
@@ -67,8 +67,29 @@ timer.$name = "CONFIG_TIMER_0";
 /* ======== I2C ======== */
 var I2C = scripting.addModule("/ti/drivers/I2C");
 var i2c = I2C.addInstance();
-i2c.$name = "CONFIG_I2C_BMI";
+i2c.$name = "CONFIG_I2C_0";
 i2c.$hardware = Sensors.components.BMI160_BMM150.subComponents.I2C;
+//i2c.i2c.sdaPin.$assign = "boosterpack.10";
+//i2c.i2c.sclPin.$assign = "boosterpack.9";
+
+/* ======== I2S ======== */
+var I2S = scripting.addModule("/ti/drivers/I2S");
+var i2s = I2S.addInstance();
+i2s.interruptPriority = "2";
+i2s.$name = "CONFIG_I2S_0";
+/*
+    * All CC13x2 LaunchPads must jumper SD0/DIN as this conflicts with the
+    * sub-1 GHz RF port.
+    */
+i2s.i2s.SD0Pin.$assign = "DIO25";               // CC3200AUDBOOST DIN
+/*
+    * "P" variant LaunchPads must use jumpers for all I2S signals because
+    * there are conflicts between the I2S pins required by the BoosterPack
+    * and the RF ports and the RF switch signals on the LaunchPad
+    */
+i2s.i2s.SD1Pin.$assign = "DIO26";           // CC3200AUDBOOST DOUT
+i2s.i2s.SCKPin.$assign = "DIO27";           // CC3200AUDBOOST BCLK
+i2s.i2s.WSPin.$assign =  "DIO16";           // CC3200AUDBOOST FSYNC
 
 /* ======== NVS ======== */
 var NVS = scripting.addModule("/ti/drivers/NVS");

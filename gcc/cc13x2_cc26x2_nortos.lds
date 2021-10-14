@@ -30,7 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- STACKSIZE = 1024;
+ STACKSIZE = 0x800;
  /* HEAPSIZE is dynamic; Size of heap buffer used by HeapMem */
  SRAM_END = 0x20014000;
  SRAM_START = 0x20000000;
@@ -66,14 +66,17 @@ REGION_ALIAS("REGION_ARM_EXTAB", FLASH);
 
 SECTIONS {
 
-    PROVIDE (_resetVecs_base_address =
-        DEFINED(_resetVecs_base_address) ? _resetVecs_base_address : 0x0);
+    PROVIDE (_intvecs_base_address =
+        DEFINED(_intvecs_base_address) ? _intvecs_base_address : 0x0);
 
-    .resetVecs (_resetVecs_base_address) : AT (_resetVecs_base_address) {
+    .resetVecs (_intvecs_base_address) : AT (_intvecs_base_address) {
         KEEP (*(.resetVecs))
     } > REGION_TEXT
 
-    .ramVecs (NOLOAD) : ALIGN(1024){
+    PROVIDE (_vtable_base_address =
+        DEFINED(_vtable_base_address) ? _vtable_base_address : 0x20000000);
+
+    .vtable (_vtable_base_address) (NOLOAD) : {
         KEEP (*(.ramVecs))
     } > REGION_DATA
 
@@ -176,6 +179,18 @@ SECTIONS {
     UDMACC26XX_dmaSpi1TxAltControlTableEntry_is_placed = 0;
     .dmaSpi1TxAltControlTableEntry DMA_SPI1_TX_ALT_CONTROL_TABLE_ENTRY_ADDRESS (NOLOAD) : AT (DMA_SPI1_TX_ALT_CONTROL_TABLE_ENTRY_ADDRESS) {*(.dmaSpi1TxAltControlTableEntry)} > REGION_DATA
 
+
+
+    /* if a ROM-only symbol is present, then ROM is being used.
+     * Reserve memory for surgically placed config constants.
+     */
+    _rom_rodata_start = 0x2000;
+    _rom_rodata_size = DEFINED(ROM_RODATA_SIZE) ? 0 : DEFINED(ROM_RODATA_SIZE_NO_OAD) ? 0x330 : 0;
+
+    .rom_rodata_reserve (_rom_rodata_start): {
+        . += _rom_rodata_size;
+    } > REGION_TEXT AT> REGION_TEXT
+
     .text : {
         CREATE_OBJECT_SYMBOLS
         *(.text)
@@ -199,6 +214,7 @@ SECTIONS {
     .rodata : {
         *(.rodata)
         *(.rodata.*)
+        *(.rodata_*)
     } > REGION_TEXT AT> REGION_TEXT
 
     .data : ALIGN(4) {

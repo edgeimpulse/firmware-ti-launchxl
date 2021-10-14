@@ -26,7 +26,7 @@
 #include "ei_classifier_porting.h"
 #include "edge-impulse-sdk/dsp/ei_utils.h"
 #include "ei_inertialsensor.h"
-// #include "ei_microphone.h"
+#include "ei_microphone.h"
 #include "repl.h"
 
 #include <cstdarg>
@@ -34,14 +34,22 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <ti/devices/DeviceFamily.h>
+#include DeviceFamily_constructPath(inc/hw_memmap.h)
+#include DeviceFamily_constructPath(inc/hw_fcfg1.h)
 
 /** Max size for device id array */
 #define DEVICE_ID_MAX_SIZE 32
 
+/** Memory location for the processor device address */
+#define DEVICE_ID_LSB_ADDR  ((uint32_t)(FCFG1_BASE + FCFG1_O_MAC_BLE_0))
+#define DEVICE_ID_MSB_ADDR  ((uint32_t)(FCFG1_BASE + FCFG1_O_MAC_BLE_1))
+
 /** Sensors */
 typedef enum
 {
-    ACCELEROMETER = 0
+    MICROPHONE = 0,
+    ACCELEROMETER
 } used_sensors_t;
 
 
@@ -59,12 +67,13 @@ const ei_device_data_output_baudrate_t ei_dev_default_data_output_baudrate = {
 /* TI extern declared */
 extern "C" void Serial_Out(char *string, int length);
 extern "C" uint8_t Serial_In(void);
+extern "C" void Serial_set_baudrate(uint32_t baud);
 
 /** Device type */
 static const char *ei_device_type = "TI_LAUNCH_XL  ";
 
 /** Device id array */
-static char ei_device_id[DEVICE_ID_MAX_SIZE] = "A0:B1:C2:D3:E4:F5";
+static char ei_device_id[DEVICE_ID_MAX_SIZE];
 
 /** Device object, for this class only 1 object should exist */
 EiDeviceTiLaunchXl EiDevice;
@@ -90,6 +99,18 @@ EiDeviceInfo* EiDeviceInfo::get_device() { return &EiDevice; }
 
 EiDeviceTiLaunchXl::EiDeviceTiLaunchXl(void)
 {
+    uint32_t *id_msb = (uint32_t *)DEVICE_ID_MSB_ADDR;
+    uint32_t *id_lsb = (uint32_t *)DEVICE_ID_LSB_ADDR;
+
+    /* Setup device ID */
+    snprintf(&ei_device_id[0], DEVICE_ID_MAX_SIZE, "%02X:%02X:%02X:%02X:%02X:%02X"
+        ,(uint8_t)((*id_msb >> 8) & 0xFF)
+        ,(uint8_t)((*id_msb >> 0) & 0xFF)
+        ,(uint8_t)((*id_lsb >> 24)& 0xFF)
+        ,(uint8_t)((*id_lsb >> 16)& 0xFF)
+        ,(uint8_t)((*id_lsb >> 8) & 0xFF)
+        ,(uint8_t)((*id_lsb >> 0) & 0xFF)
+        );
 }
 
 /**
@@ -175,11 +196,10 @@ bool EiDeviceTiLaunchXl::get_sensor_list(
     uint32_t available_bytes = (ei_ti_launchxl_fs_get_n_available_sample_blocks() - 1) *
         ei_ti_launchxl_fs_get_block_size();
 
-    // sensors[MICROPHONE].name = "Built-in microphone";
-    // sensors[MICROPHONE].start_sampling_cb = 0;//&ei_microphone_sample_start;
-    // sensors[MICROPHONE].max_sample_length_s = available_bytes / (16000 * 2);
-    // sensors[MICROPHONE].frequencies[0] = 16000.0f;
-
+    sensors[MICROPHONE].name = "Microphone";
+    sensors[MICROPHONE].start_sampling_cb = &ei_microphone_sample_start;
+    sensors[MICROPHONE].max_sample_length_s = available_bytes / (8000 * 2);
+    sensors[MICROPHONE].frequencies[0] = 16000.0f;
 
     sensors[ACCELEROMETER].name = "Accelerometer";
     sensors[ACCELEROMETER].start_sampling_cb = &ei_inertial_setup_data_sampling;
@@ -188,7 +208,6 @@ bool EiDeviceTiLaunchXl::get_sensor_list(
     sensors[ACCELEROMETER].frequencies[1] = 100.0f;
     sensors[ACCELEROMETER].frequencies[2] = 250.0f;
     sensors[ACCELEROMETER].max_sample_length_s = available_bytes / (sensors[ACCELEROMETER].frequencies[2] * SIZEOF_N_AXIS_SAMPLED * EI_SAMPLING_OVERHEAD_PER_SAMPLE);
-
 
     *sensor_list = sensors;
     *sensor_list_size = EI_DEVICE_N_SENSORS;
@@ -224,13 +243,7 @@ void EiDeviceTiLaunchXl::delay_ms(uint32_t milliseconds)
 
 void EiDeviceTiLaunchXl::setup_led_control(void)
 {
-    // tHalTmr *AppTmr = NULL;
-    // /* Create Periodic timer */
-    // AppTmr = HalTmrCreate(HalTmrCh0, HalTmrPeriodic, 1000, timer_callback, AppTmr);
-    // if (!AppTmr)
-    //     ei_printf("TImer Creatation Failed\n");
-    // else
-    //     HalTmrStart(AppTmr);
+
 }
 
 void EiDeviceTiLaunchXl::set_state(tEiState state)
@@ -272,7 +285,7 @@ int EiDeviceTiLaunchXl::get_data_output_baudrate(ei_device_data_output_baudrate_
  */
 void EiDeviceTiLaunchXl::set_max_data_output_baudrate()
 {
-    // set_max_data_output_baudrate_c();
+    Serial_set_baudrate(MAX_BAUD);
 }
 
 /**
@@ -281,7 +294,7 @@ void EiDeviceTiLaunchXl::set_max_data_output_baudrate()
  */
 void EiDeviceTiLaunchXl::set_default_data_output_baudrate()
 {
-    // set_default_data_output_baudrate_c();
+    Serial_set_baudrate(DEFAULT_BAUD);
 }
 
 /**

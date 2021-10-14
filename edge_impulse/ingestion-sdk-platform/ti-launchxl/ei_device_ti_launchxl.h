@@ -28,11 +28,11 @@
 #include "firmware-sdk/ei_device_interface.h"
 
 #define DEFAULT_BAUD 115200
-#define MAX_BAUD 115200//921600
+#define MAX_BAUD 921600
 
 
 /** Number of sensors used */
-#define EI_DEVICE_N_SENSORS 1
+#define EI_DEVICE_N_SENSORS 2
 
 #define EI_RESOLUTIONS_BASE 4
 #if defined(EI_CLASSIFIER_SENSOR) && EI_CLASSIFIER_SENSOR == EI_CLASSIFIER_SENSOR_CAMERA

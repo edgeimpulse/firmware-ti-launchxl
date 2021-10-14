@@ -80,7 +80,7 @@ struct bmi160_sensor_data bmi160_accel;
 /*! @brief variable to hold the bmi160 gyro data */
 struct bmi160_sensor_data bmi160_gyro;
 
-static I2C_Handle     i2cHandle    = NULL;
+extern I2C_Handle     i2cHandle;
 
 /*********************************************************************/
 /* static function declarations */
@@ -117,6 +117,9 @@ int init_bmi160(I2C_Handle i2cHndl)
     int8_t rslt;
 
     i2cHandle = i2cHndl;
+    if (i2cHandle == NULL) {
+        return -1;
+    }
 
     init_bmi160_sensor_driver_interface();
 

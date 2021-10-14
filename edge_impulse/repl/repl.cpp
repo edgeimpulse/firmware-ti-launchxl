@@ -11,6 +11,7 @@
 
 
 extern bool ei_at_cmd_handle(const char *cmd_in);
+extern "C" void Serial_Out(char *string, int length);
 
 using namespace std;
 
@@ -68,6 +69,8 @@ static vector<char> controlSequence;
 static vector<string> history;
 static size_t historyPosition;
 static ReplBuffer buffer;
+
+#define MAX_HISTORY 5
 
 /* Private functions prototypes -------------------------------------------- */
 static void handleBackspace(void);
@@ -248,8 +251,27 @@ static void runBuffer(void)
 
     //pc->printf("Running: %s\r\n", rawCode.c_str());
 
-    history.push_back(rawCode);
-    historyPosition = history.size();
+    if (history.size() == MAX_HISTORY) {
+
+        // copy
+        vector<string> hist_copy;
+        unsigned int i;
+        for (i=1; i < history.size(); i++) {
+            hist_copy.push_back(history.at(i));
+        }
+        hist_copy.push_back(rawCode);
+
+        //restore
+        history.clear();
+        for (i=0; i < hist_copy.size(); i++) {
+            history.push_back(hist_copy.at(i));
+        }
+        historyPosition = history.size();
+
+    } else {
+        history.push_back(rawCode);
+        historyPosition = history.size();
+    }
 
     // pc->printf("Executing (%s): ", rawCode.c_str());
     // for (size_t ix = 0; ix < rawCode.size(); ix++) {
@@ -266,6 +288,6 @@ static void runBuffer(void)
     buffer.clear();
 
     if (printNewState) {
-        ei_printf("> ");
+        Serial_Out((char *)"> ",sizeof("> "));
     }
 }

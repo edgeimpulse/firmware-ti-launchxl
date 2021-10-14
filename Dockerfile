@@ -27,11 +27,18 @@ RUN mkdir -p /opt/ti && \
     ./simplelink.run --mode unattended --prefix /opt/ti && \
     rm -rf simplelink.run
 
+# FreeRTOS
+RUN mkdir -p /opt/FreeRTOS && \
+    cd /opt/FreeRTOS && \
+    wget https://github.com/FreeRTOS/FreeRTOS/releases/download/202107.00/FreeRTOSv202107.00.zip -O freertos.zip && \
+    unzip -q freertos.zip && \
+    rm -rf freertos.zip && mv FreeRTOS* FreeRTOS
+
 ENV SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR="/opt/ti/simplelink_cc13x2_26x2_sdk_5_20_00_52"
 
-RUN sed -i -e "s:/ccs1030/ccs/utils/sysconfig_1.8.0/sysconfig_cli.sh:/sysconfig_1.8.2/sysconfig_cli.sh:g" /opt/ti/simplelink_cc13x2_26x2_sdk_5_20_00_52/imports.mak && \
-    sed -i -e "s:/home/username/FreeRTOSv10.2.1::g" /opt/ti/simplelink_cc13x2_26x2_sdk_5_20_00_52/imports.mak && \
-    sed -i -e "s:/home/username/ti/ccs1030/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS::g" /opt/ti/simplelink_cc13x2_26x2_sdk_5_20_00_52/imports.mak && \
-    sed -i -e "s:/home/username/ti/ccs1030/ccs/tools/compiler/1.2.1.STS::g" /opt/ti/simplelink_cc13x2_26x2_sdk_5_20_00_52/imports.mak && \
-    sed -i -e "s:/home/username/ti/ccs1030/ccs/tools/compiler/9.2019.q4.major:/opt/gcc/gcc-arm-none-eabi-9-2019-q4-major:g" /opt/ti/simplelink_cc13x2_26x2_sdk_5_20_00_52/imports.mak && \
-    sed -i -e "s:/home/username/ti/:/opt/ti/:g" /opt/ti/simplelink_cc13x2_26x2_sdk_5_20_00_52/imports.mak
+RUN sed -i -e "s:/ccs1030/ccs/utils/sysconfig_1.8.0/sysconfig_cli.sh:/sysconfig_1.8.2/sysconfig_cli.sh:g" ${SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR}/imports.mak && \
+    sed -i -e "s:/home/username/FreeRTOSv10.2.1:/opt/FreeRTOS/FreeRTOS:g" ${SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR}/imports.mak && \
+    sed -i -e "s:/home/username/ti/ccs1030/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS::g" ${SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR}/imports.mak && \
+    sed -i -e "s:/home/username/ti/ccs1030/ccs/tools/compiler/1.2.1.STS::g" ${SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR}/imports.mak && \
+    sed -i -e "s:/home/username/ti/ccs1030/ccs/tools/compiler/9.2019.q4.major:/opt/gcc/gcc-arm-none-eabi-9-2019-q4-major:g" ${SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR}/imports.mak && \
+    sed -i -e "s:/home/username/ti/:/opt/ti/:g" ${SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR}/imports.mak

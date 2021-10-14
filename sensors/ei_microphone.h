@@ -1,5 +1,5 @@
 /* Edge Impulse ingestion SDK
- * Copyright (c) 2020 EdgeImpulse Inc.
+ * Copyright (c) 2021 EdgeImpulse Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,12 +20,25 @@
  * SOFTWARE.
  */
 
-#ifndef EI_RUN_IMPULSE_H
-#define EI_RUN_IMPULSE_H
+#ifndef EI_MICROPHONE_H
+#define EI_MICROPHONE_H
 
-/* Prototypes -------------------------------------------------------------- */
-void run_nn_normal(void);
-void run_nn_debug(void);
-void run_nn_continuous_normal(void);
+/* Include ----------------------------------------------------------------- */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+/* Function prototypes ----------------------------------------------------- */
+extern "C" void ei_microphone_init(void);
+bool ei_microphone_inference_start(uint32_t n_samples);
+
+bool ei_microphone_sample_start(void);
+bool ei_microphone_inference_record(void);
+void ei_microphone_inference_reset_buffers(void);
+int ei_microphone_audio_signal_get_data(size_t offset, size_t length, float *out_ptr);
+bool ei_microphone_inference_end(void);
+
+void startStream();
+void stopStream();
 
 #endif

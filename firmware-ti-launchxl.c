@@ -39,28 +39,35 @@
 #include <ti/drivers/UART2.h>
 #include "ti/drivers/Timer.h"
 #include "ti/drivers/I2C.h"
+#include "ti/drivers/I2S.h"
 #include <stdlib.h>
 #include <stdio.h>
 /* Driver configuration */
 #include "ti_drivers_config.h"
 #include "bmi160_config.h"
+#include DeviceFamily_constructPath(driverlib/sys_ctrl.h)
 
 
 /* Extern CPP functions ---------------------------------------------------- */
 extern int ei_main();
+extern void ei_microphone_init();
 extern void timer_led_callback(void);
 
 /* Forward declerations ---------------------------------------------------- */
 void Serial_Out(char *string, int length);
 uint8_t Serial_In(void);
 static int uart_init(void);
+static void uart_disable(uint32_t ui32Base);
+static void uart_enable(uint32_t ui32Base);
+static void uart_set_baudrate(uint32_t ui32Base, uint32_t ui32UARTClk, uint32_t ui32Baud);
 static int init_timer(void);
 static int init_inertial_sensor(void);
+static int init_i2c(void);
 
 /* Private variables ------------------------------------------------------- */
 static UART2_Handle uart;
 static uint64_t timer_count = 0;
-I2C_Handle      i2c;
+I2C_Handle      i2cHandle;
 I2C_Params      i2cParams;
 
 /*
@@ -71,6 +78,7 @@ void *mainThread(void *arg0)
     /* Call driver init functions */
     GPIO_init();
     I2C_init();
+    I2S_init();
 
     /* Configure the LED pins */
     GPIO_setConfig(CONFIG_GPIO_LED_0, GPIO_CFG_OUT_STD | GPIO_CFG_OUT_LOW);
@@ -84,9 +92,15 @@ void *mainThread(void *arg0)
         Serial_Out("Timer init error\r\n", 18);
     }
 
+    if(init_i2c()) {
+        Serial_Out("I2C setup error\r\n", 28);
+    }
+
     if(init_inertial_sensor()) {
         Serial_Out("Inertial sensor init error\r\n", 28);
     }
+
+    ei_microphone_init();
 
     ei_main();
 
@@ -117,6 +131,18 @@ uint8_t Serial_In(void)
     UART2_read(uart, &character, 1, &bytes_read);
 
     return bytes_read == 0 ? 0 : character;
+}
+
+/**
+ * @brief Switch baudrate for fast data transfer
+ *
+ * @param lowHigh false low
+ */
+void Serial_set_baudrate(uint32_t baud)
+{
+    const uint32_t uart_base = 0x40001000;
+
+    uart_set_baudrate(uart_base, SysCtrlClockGet(), baud);
 }
 
 /**
@@ -191,6 +217,74 @@ static int uart_init(void)
 }
 
 /**
+ * @brief Stop UART
+ *
+ * @param ui32Base UART0 base address
+ */
+static void uart_disable(uint32_t ui32Base)
+{
+    int timeout = 10000;
+    // Check the arguments.
+    ASSERT(UARTBaseValid(ui32Base));
+
+    // Wait for end of TX.
+    while(HWREG(ui32Base + UART_O_FR) & UART_FR_BUSY && timeout--)
+    {
+    }
+
+    // Disable the FIFO.
+    HWREG(ui32Base + UART_O_LCRH) &= ~(UART_LCRH_FEN);
+
+    // Disable the UART.
+    HWREG(ui32Base + UART_O_CTL) &= ~(UART_CTL_UARTEN | UART_CTL_TXE | UART_CTL_RXE);
+}
+
+/**
+ * @brief Enable UART
+ *
+ * @param ui32Base UART0 base address
+ */
+static void uart_enable(uint32_t ui32Base)
+{
+    // Check the arguments.
+    ASSERT(UARTBaseValid(ui32Base));
+
+    // Disable the FIFO.
+    HWREG(ui32Base + UART_O_LCRH) |= (UART_LCRH_FEN);
+
+    // Disable the UART.
+    HWREG(ui32Base + UART_O_CTL) |= (UART_CTL_UARTEN | UART_CTL_TXE | UART_CTL_RXE);
+}
+
+/**
+ * @brief Calculate and set baudrate
+ *
+ * @param ui32Base UART0 base address
+ * @param ui32UARTClk Processor control clock
+ * @param ui32Baud Baudrate to set
+ */
+static void uart_set_baudrate(uint32_t ui32Base, uint32_t ui32UARTClk, uint32_t ui32Baud)
+{
+    uint32_t ui32Div;
+
+    // Check the arguments.
+    ASSERT(UARTBaseValid(ui32Base));
+    ASSERT(ui32Baud != 0);
+
+    // Stop the UART.
+    uart_disable(ui32Base);
+
+    // Compute the fractional baud rate divider.
+    ui32Div = (((ui32UARTClk * 8) / ui32Baud) + 1) / 2;
+
+    // Set the baud rate.
+    HWREG(ui32Base + UART_O_IBRD) = ui32Div / 64;
+    HWREG(ui32Base + UART_O_FBRD) = ui32Div % 64;
+
+    uart_enable(ui32Base);
+}
+
+/**
  * @brief Setup and start timer
  *
  * @return Error if unequal to 0
@@ -224,20 +318,30 @@ static int init_timer(void)
 }
 
 /**
+ * @brief Setup I2C
+ *
+ * @return int
+ */
+static int init_i2c(void)
+{
+    // Initialize the I2C pins
+    I2C_Params_init(&i2cParams);
+    i2cParams.bitRate = I2C_400kHz;
+    i2cParams.transferMode = I2C_MODE_BLOCKING;
+    i2cParams.transferCallbackFxn = NULL;
+    i2cHandle = I2C_open(CONFIG_I2C_0, &i2cParams);
+    if (i2cHandle == NULL) {
+        return -1;
+    }
+    return 0;
+}
+
+/**
  * @brief Setup I2C and init bmi160
  *
  * @return int
  */
 static int init_inertial_sensor(void)
 {
-    I2C_Params_init(&i2cParams);
-    i2cParams.bitRate = I2C_400kHz;
-    i2cParams.transferMode = I2C_MODE_BLOCKING;
-    i2cParams.transferCallbackFxn = NULL;
-    i2c = I2C_open(CONFIG_I2C_BMI, &i2cParams);
-    if (i2c == NULL) {
-        return -1;
-    }
-
-    return init_bmi160(i2c);
+    return init_bmi160(i2cHandle);
 }

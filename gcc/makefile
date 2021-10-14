@@ -1,8 +1,9 @@
 BUILD := build
 SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR ?= ../../../../../../ti/simplelink_cc13x2_26x2_sdk_5_10_00_48
 
-
 include $(SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR)/imports.mak
+
+KERNEL_BUILD := $(SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR)/kernel/freertos/builds/cc13x2_cc26x2/release
 
 CC = "$(GCC_ARMCOMPILER)/bin/arm-none-eabi-gcc"
 CXX = "$(GCC_ARMCOMPILER)/bin/arm-none-eabi-g++"
@@ -22,13 +23,15 @@ APPFLAGS += \
 	-DARM_MATH_LOOPUNROLL \
 	-DEIDSP_LOAD_CMSIS_DSP_SOURCES=1 \
 
-CFLAGS = -I.. \
+COMPILE_FLAGS = -I.. \
     -I. \
     -I$(BUILD) \
     -DDeviceFamily_CC13X2 \
     "-I$(SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR)/source" \
-    "-I$(SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR)/kernel/nortos" \
-    "-I$(SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR)/kernel/nortos/posix" \
+    "-I$(SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR)/source/ti/posix/gcc" \
+    "-I$(FREERTOS_INSTALL_DIR)/FreeRTOS/Source/include" \
+    "-I$(FREERTOS_INSTALL_DIR)/FreeRTOS/Source/portable/GCC/ARM_CM4F" \
+    "-I$(KERNEL_BUILD)" \
     -mcpu=cortex-m4 \
     -march=armv7e-m \
     -mthumb \
@@ -37,15 +40,18 @@ CFLAGS = -I.. \
     -ffunction-sections \
     -fdata-sections \
     -g \
-	-O3 \
+	-Os \
     -gstrict-dwarf \
     -Wall \
     "-I$(GCC_ARMCOMPILER)/arm-none-eabi/include/newlib-nano" \
     "-I$(GCC_ARMCOMPILER)/arm-none-eabi/include" \
 	$(APPFLAGS) \
 
-CXXFLAGS += $(CFLAGS) \
-	-std=gnu++11 \
+CFLAGS += $(COMPILE_FLAGS)\
+	-std=c99 \
+
+CXXFLAGS += $(COMPILE_FLAGS) \
+	-std=c++11 \
 	-fno-rtti \
 	-fno-use-cxa-atexit \
 	-fno-inline-functions \
@@ -55,12 +61,13 @@ LIBSTDC = "${shell "$(CC)" $(CFLAGS) -print-file-name=libstdc++.a}"
 LFLAGS = -Wl,-T,../gcc/cc13x2_cc26x2_nortos.lds \
     "-Wl,-Map,$(BUILD)/$(NAME).map" \
     "-L$(SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR)/source" \
-    -eresetISR \
-    "-L$(SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR)/kernel/nortos" \
     ti_utils_build_linker.cmd.genlibs \
+    "-L$(KERNEL_BUILD)/gcc" \
+    -l:freertos.lib \
     -l:ti/devices/cc13x2_cc26x2/driverlib/bin/gcc/driverlib.lib \
     -march=armv7e-m \
     -mthumb \
+	-eresetISR \
     -mfloat-abi=hard \
     -mfpu=fpv4-sp-d16 \
     -nostartfiles \
@@ -105,6 +112,7 @@ INC_APP += \
 	-I ../edge_impulse/tflite-model \
 	-I ../sensors \
 	-I ../boostxl_sensors \
+	-I ../audio_codec \
 
 SRC_C += \
 	$(notdir $(wildcard ../*.c)) \
@@ -113,6 +121,7 @@ SRC_C += \
 	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/TransformFunctions/*bit*.c)) \
 	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/MatrixFunctions/*.c)) \
 	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/StatisticsFunctions/*.c)) \
+	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/SupportFunctions/*.c)) \
 	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ActivationFunctions/*.c)) \
 	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/BasicMathFunctions/*.c)) \
 	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ConcatenationFunctions/*.c)) \
@@ -126,6 +135,7 @@ SRC_C += \
 	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/tensorflow/lite/c/*.c)) \
 	$(notdir $(wildcard ../edge_impulse/QCBOR/src/*.c)) \
 	$(notdir $(wildcard ../boostxl_sensors/*.c)) \
+	$(notdir $(wildcard ../audio_codec/*.c)) \
 
 SRC_CXX += \
 	$(notdir $(wildcard ../*.cpp)) \
@@ -168,6 +178,7 @@ VPATH += ../ \
 	../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/CommonTables \
 	../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/MatrixFunctions \
 	../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/StatisticsFunctions \
+	../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/SupportFunctions \
 	../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ActivationFunctions \
 	../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/BasicMathFunctions \
 	../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ConcatenationFunctions \
@@ -180,6 +191,7 @@ VPATH += ../ \
 	../edge_impulse/tflite-model \
 	../sensors \
 	../boostxl_sensors \
+	../audio_codec \
 
 OBJ = $(addprefix $(BUILD)/, $(SRC_C:.c=.obj))
 OBJ += $(addprefix $(BUILD)/, $(SRC_CXX:.cpp=.obj))
@@ -187,6 +199,12 @@ OBJ += $(addprefix $(BUILD)/, $(SRC_CC:.cc=.obj))
 OBJECTS += $(filter-out $(BUILD)/$(NAME).obj, $(OBJ))
 
 all: $(BUILD)/$(NAME).out
+
+$(KERNEL_BUILD)/gcc/freertos.lib:
+	@ $(ECHOBLANKLINE)
+	@ echo $@ is not built.
+	@ echo You can build it by issuing $(MAKE) in $(dir $@).
+	@ $(ECHOBLANKLINE)
 
 .INTERMEDIATE: syscfg
 ti_devices_config.c ti_drivers_config.c ti_utils_build_linker.cmd.genlibs ti_drivers_config.h: syscfg
@@ -216,7 +234,7 @@ $(BUILD)/%.obj: %.cc
 	@$(CXX) $(CXXFLAGS) $(INC_APP) -c -o $@ $<
 	@echo $<
 
-$(BUILD)/$(NAME).out: $(BUILD)/$(OBJECTS)
+$(BUILD)/$(NAME).out: $(BUILD)/$(OBJECTS) $(KERNEL_BUILD)/gcc/freertos.lib
 	@ echo linking $@
 	@ $(LNK)  $(BUILD)/$(OBJECTS)  $(LFLAGS) -o $(BUILD)/$(NAME).out
 
@@ -226,6 +244,16 @@ $(BUILD): syscfg
 
 test:
 	@ echo $(SRC_C) $(OBJECTS) $(LIBSTDC)
+
+build-kernel:
+	@ echo Copying FreeRTOSConfig.h
+	@ cp FreeRTOSConfig.h $(KERNEL_BUILD)
+	@ echo Building kernel..
+	@ cd $(KERNEL_BUILD)/../../../ && make
+
+clean-kernel:
+	@ echo Cleaning kernel..
+	@ cd $(KERNEL_BUILD)/../../../ && make clean
 
 clean:
 	@ echo Cleaning...
