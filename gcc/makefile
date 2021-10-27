@@ -58,7 +58,7 @@ CXXFLAGS += $(COMPILE_FLAGS) \
 
 LIBSTDC = "${shell "$(CC)" $(CFLAGS) -print-file-name=libstdc++.a}"
 
-LFLAGS = -Wl,-T,../gcc/cc13x2_cc26x2_nortos.lds \
+LFLAGS = -Wl,-T,../gcc/cc13x2_cc26x2_freertos.lds \
     "-Wl,-Map,$(BUILD)/$(NAME).map" \
     "-L$(SIMPLELINK_CC13X2_26X2_SDK_INSTALL_DIR)/source" \
     ti_utils_build_linker.cmd.genlibs \
