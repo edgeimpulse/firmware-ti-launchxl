@@ -210,7 +210,11 @@ void run_nn_continuous(bool debug)
     ei_microphone_inference_end();
 }
 
-#endif
+#else
+void run_nn(bool debug) {}
+#error "EI_CLASSIFIER_SENSOR not configured, cannot configure `run_nn`"
+
+#endif // EI_CLASSIFIER_SENSOR
 
 void run_nn_normal(void) {
     run_nn(false);
