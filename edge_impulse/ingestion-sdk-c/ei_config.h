@@ -24,7 +24,7 @@
 #define _EDGE_IMPULSE_CONFIG_H_
 
 #include <stdint.h>
-#include "ei_config_types.h"
+#include "firmware-sdk/ei_config_types.h"
 
 #define EDGE_IMPULSE_MAX_FREQUENCIES        5
 

@@ -23,11 +23,11 @@
 #ifndef _EI_SAMPLER_H
 #define _EI_SAMPLER_H
 
+/* Include ----------------------------------------------------------------- */
+#include "firmware-sdk/ei_config_types.h"
 
-/** ei sampler callback function, call with sample data */
-typedef bool (*sampler_callback)(const void *sample_buf, uint32_t byteLenght);
 
 /* Function prototypes ----------------------------------------------------- */
-bool ei_sampler_start_sampling(void *v_ptr_payload, uint32_t sample_size);
+bool ei_sampler_start_sampling(void *v_ptr_payload, starter_callback ei_sample_start, uint32_t sample_size);
 
 #endif

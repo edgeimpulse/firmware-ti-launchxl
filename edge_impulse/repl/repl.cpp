@@ -3,6 +3,7 @@
 #include "repl.h"
 
 #include "ei_device_ti_launchxl.h"
+#include "edge-impulse-sdk/porting/ei_classifier_porting.h"
 // #include "at_cmd_interface.h"
 
 #include <stdio.h>

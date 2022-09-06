@@ -25,6 +25,7 @@
 
 /* Include ----------------------------------------------------------------- */
 #include "ei_sampler.h"
+#include "firmware-sdk/ei_config_types.h"
 
 /** Number of axis used and sample data format */
 typedef float sample_format_t;

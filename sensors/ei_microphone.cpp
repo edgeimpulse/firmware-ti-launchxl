@@ -35,7 +35,7 @@
 #include <semaphore.h>
 #include <mqueue.h>
 
-#include "ei_config_types.h"
+#include "firmware-sdk/ei_config_types.h"
 #include "sensor_aq_mbedtls_hs256.h"
 #include "sensor_aq_none.h"
 #include "arm_math.h"

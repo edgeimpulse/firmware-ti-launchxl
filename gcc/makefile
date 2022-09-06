@@ -15,7 +15,6 @@ OBJECTS = $(NAME).obj $(BUILD)/ti_devices_config.obj $(BUILD)/ti_drivers_config.
 
 # Application flags
 APPFLAGS += \
-	-DEI_SENSOR_AQ_STREAM=FILE \
 	-DEI_PORTING_TI=1 \
 	-DEIDSP_USE_CMSIS_DSP \
 	-DEIDSP_QUANTIZE_FILTERBANK=0 \

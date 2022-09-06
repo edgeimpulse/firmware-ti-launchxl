@@ -24,10 +24,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "ei_config_types.h"
+#include "firmware-sdk/ei_config_types.h"
 #include "ei_inertialsensor.h"
 #include "ei_device_ti_launchxl.h"
-#include "sensor_aq.h"
+#include "firmware-sdk/sensor_aq.h"
 
 /* Constant defines -------------------------------------------------------- */
 #define CONVERT_G_TO_MS2    9.80665f
@@ -111,12 +111,11 @@ bool ei_inertial_setup_data_sampling(void)
         // How often new data is sampled in ms. (100Hz = every 10 ms.)
         ei_config_get_config()->sample_interval_ms,
         // The axes which you'll use. The units field needs to comply to SenML units (see https://www.iana.org/assignments/senml/senml.xhtml)
-        { { "accX", "m/s2" }, { "accY", "m/s2" }, { "accZ", "m/s2" },
-          /*{ "gyrX", "dps" }, { "gyrY", "dps" }, { "gyrZ", "dps" } */ },
+        { { "accX", "m/s2" }, { "accY", "m/s2" }, { "accZ", "m/s2" } },
     };
 
     EiDevice.set_state(eiStateErasingFlash);
-    sample_start = ei_sampler_start_sampling(&payload, SIZEOF_N_AXIS_SAMPLED);
+    sample_start = ei_sampler_start_sampling(&payload, &ei_inertial_sample_start, SIZEOF_N_AXIS_SAMPLED);
     EiDevice.set_state(eiStateIdle);
 
     return sample_start;

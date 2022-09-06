@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #include "ei_sampler.h"
-#include "ei_config_types.h"
+#include "firmware-sdk/ei_config_types.h"
 #include "ei_ti_launchxl_fs_commands.h"
 #include "ei_device_ti_launchxl.h"
 
@@ -136,7 +136,7 @@ static bool create_header(sensor_aq_payload_info *payload);
  *
  * @return     true if successful
  */
-bool ei_sampler_start_sampling(void *v_ptr_payload, uint32_t sample_size)
+bool ei_sampler_start_sampling(void *v_ptr_payload, starter_callback ei_sample_start, uint32_t sample_size)
 {
     sensor_aq_payload_info *payload = (sensor_aq_payload_info *)v_ptr_payload;
 
@@ -174,9 +174,8 @@ bool ei_sampler_start_sampling(void *v_ptr_payload, uint32_t sample_size)
     if(create_header(payload) == false)
         return false;
 
-    if(ei_inertial_sample_start(&sample_data_callback, ei_config_get_config()->sample_interval_ms) == false) {
+    if(ei_sample_start(&sample_data_callback, ei_config_get_config()->sample_interval_ms) == false)
         return false;
-    }
 
     bool sampling_failed = false;
 

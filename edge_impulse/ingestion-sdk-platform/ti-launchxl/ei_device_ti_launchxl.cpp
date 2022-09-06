@@ -55,12 +55,12 @@ typedef enum
 
 /** Data Output Baudrate */
 const ei_device_data_output_baudrate_t ei_dev_max_data_output_baudrate = {
-    xstr(MAX_BAUD),
+    ei_xstr(MAX_BAUD),
     MAX_BAUD,
 };
 
 const ei_device_data_output_baudrate_t ei_dev_default_data_output_baudrate = {
-    xstr(DEFAULT_BAUD),
+    ei_xstr(DEFAULT_BAUD),
     DEFAULT_BAUD,
 };
 
@@ -78,7 +78,7 @@ static char ei_device_id[DEVICE_ID_MAX_SIZE];
 /** Device object, for this class only 1 object should exist */
 EiDeviceTiLaunchXl EiDevice;
 
-static tEiState ei_program_state = eiStateIdle;
+static EiState ei_program_state = eiStateIdle;
 
 
 /* Private function declarations ------------------------------------------- */
@@ -246,7 +246,7 @@ void EiDeviceTiLaunchXl::setup_led_control(void)
 
 }
 
-void EiDeviceTiLaunchXl::set_state(tEiState state)
+void EiDeviceTiLaunchXl::set_state(EiState state)
 {
     ei_program_state = state;
 
@@ -295,6 +295,11 @@ void EiDeviceTiLaunchXl::set_max_data_output_baudrate()
 void EiDeviceTiLaunchXl::set_default_data_output_baudrate()
 {
     Serial_set_baudrate(DEFAULT_BAUD);
+}
+
+void EiDeviceTiLaunchXl::init_device_id(void)
+{
+    
 }
 
 /**
