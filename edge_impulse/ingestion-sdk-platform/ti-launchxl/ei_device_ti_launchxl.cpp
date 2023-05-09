@@ -407,12 +407,6 @@ void ei_write_string(char *data, int length)
     Serial_Out(data, length);
 }
 
-void ei_putc(char data)
-{
-    Serial_Out(&data, 1);
-}
-
-
 /**
  * @brief Period LED control. Called every 200 ms
  *

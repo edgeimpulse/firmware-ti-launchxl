@@ -185,32 +185,20 @@ void run_nn_continuous(bool debug)
 
         if (++print_results >= (EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW >> 1)) {
 
-            if(result.label_detected >= 0) {
-                ei_printf("LABEL DETECTED : %s\r\n", result.classification[result.label_detected].label);
-                // print the predictions
-                ei_printf("Predictions (DSP: %d ms., Classification: %d ms., Anomaly: %d ms.): \n",
-                    result.timing.dsp, result.timing.classification, result.timing.anomaly);
-                for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++) {
-                    ei_printf("    %s: \t", result.classification[ix].label);
-                    ei_printf_float(result.classification[ix].value);
-                    ei_printf("\r\n");
-                }
-#if EI_CLASSIFIER_HAS_ANOMALY == 1
-                ei_printf("    anomaly score: ");
-                ei_printf_float(result.anomaly);
+            // print the predictions
+            ei_printf("Predictions (DSP: %d ms., Classification: %d ms., Anomaly: %d ms.): \n",
+                result.timing.dsp, result.timing.classification, result.timing.anomaly);
+            for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++) {
+                ei_printf("    %s: \t", result.classification[ix].label);
+                ei_printf_float(result.classification[ix].value);
                 ei_printf("\r\n");
+            }
+#if EI_CLASSIFIER_HAS_ANOMALY == 1
+            ei_printf("    anomaly score: ");
+            ei_printf_float(result.anomaly);
+            ei_printf("\r\n");
 #endif
-            }
-        else {
-            const char spinner[] = {'/', '-', '\\', '|'};
-            static char spin = 0;
-            ei_printf("Running inference %c\r", spinner[spin]);
-
-            if(++spin >= sizeof(spinner)) {
-                spin = 0;
-            }
-        }
-            print_results = 0;
+                print_results = 0;
         }
 
         if(ei_user_invoke_stop_lib()) {

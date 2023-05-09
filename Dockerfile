@@ -13,7 +13,7 @@ RUN apt update && apt install -y \
 # GCC ARM
 RUN mkdir -p /opt/gcc && \
     cd /opt/gcc && \
-    wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/9-2019q4/RC2.1/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 && \
+    wget https://cdn.edgeimpulse.com/build-system/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 && \
     tar xjf gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 && \
     rm -rf /opt/gcc/*.tar.bz2
 

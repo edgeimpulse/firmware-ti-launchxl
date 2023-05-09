@@ -9,6 +9,8 @@ CC = "$(GCC_ARMCOMPILER)/bin/arm-none-eabi-gcc"
 CXX = "$(GCC_ARMCOMPILER)/bin/arm-none-eabi-g++"
 LNK = "$(GCC_ARMCOMPILER)/bin/arm-none-eabi-gcc"
 
+srctree					:= ..
+
 NAME = firmware-ti-launchxl
 
 OBJECTS = $(NAME).obj $(BUILD)/ti_devices_config.obj $(BUILD)/ti_drivers_config.obj
@@ -18,7 +20,8 @@ APPFLAGS += \
 	-DEI_PORTING_TI=1 \
 	-DEIDSP_USE_CMSIS_DSP \
 	-DEIDSP_QUANTIZE_FILTERBANK=0 \
-	-DEI_CLASSIFIER_TFLITE_ENABLE_CMSIS_NN \
+	-DEI_CLASSIFIER_TFLITE_ENABLE_CMSIS_NN=1 \
+	-DEI_CLASSIFIER_TFLITE_LOAD_CMSIS_NN_SOURCES=1 \
 	-DARM_MATH_LOOPUNROLL \
 	-DEIDSP_LOAD_CMSIS_DSP_SOURCES=1 \
 
@@ -83,118 +86,118 @@ LFLAGS = -Wl,-T,../gcc/cc13x2_cc26x2_freertos.lds \
 
 INC_APP += \
 	-I$(BUILD) \
-	-I ../edge_impulse \
-	-I ../edge_impulse/ingestion-sdk-platform/ti-launchxl \
-	-I ../edge_impulse/ingestion-sdk-c \
-	-I ../edge_impulse/repl \
-	-I ../edge_impulse/QCBOR/inc \
-	-I ../edge_impulse/mbedtls_hmac_sha256_sw \
-	-I ../edge_impulse/edge-impulse-sdk \
-	-I ../edge_impulse/edge-impulse-sdk/classifier \
-	-I ../edge_impulse/edge-impulse-sdk/porting \
-	-I ../edge_impulse/edge-impulse-sdk/dsp \
-	-I ../edge_impulse/edge-impulse-sdk/dsp/kissfft \
-	-I ../edge_impulse/edge-impulse-sdk/dsp/dct \
-	-I ../edge_impulse/edge-impulse-sdk/third_party/flatbuffers/include/flatbuffers \
-	-I ../edge_impulse/edge-impulse-sdk/third_party/gemmlowp \
-	-I ../edge_impulse/edge-impulse-sdk/third_party/ruy \
-	-I ../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Include/ \
-	-I ../edge_impulse/edge-impulse-sdk/CMSIS/Core/Include/ \
-	-I ../edge_impulse/edge-impulse-sdk/tensorflow/ \
-	-I ../edge_impulse/edge-impulse-sdk/tensorflow/lite \
-	-I ../edge_impulse/edge-impulse-sdk/tensorflow/lite/micro \
-	-I ../edge_impulse/edge-impulse-sdk/tensorflow/lite/micro/kernels \
-	-I ../edge_impulse/edge-impulse-sdk/tensorflow/lite/scheme \
-	-I ../edge_impulse/edge-impulse-sdk/tensorflow/lite/c \
-	-I ../edge_impulse/edge-impulse-sdk/tensorflow/lite/core/api/ \
-	-I ../edge_impulse/model-parameters \
-	-I ../edge_impulse/tflite-model \
-	-I ../sensors \
-	-I ../boostxl_sensors \
-	-I ../audio_codec \
+	-I $(srctree)/edge_impulse \
+	-I $(srctree)/edge_impulse/ingestion-sdk-platform/ti-launchxl \
+	-I $(srctree)/edge_impulse/ingestion-sdk-c \
+	-I $(srctree)/edge_impulse/repl \
+	-I $(srctree)/edge_impulse/QCBOR/inc \
+	-I $(srctree)/edge_impulse/mbedtls_hmac_sha256_sw \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/classifier \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/porting \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/dsp \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/dsp/kissfft \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/dsp/dct \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/third_party/flatbuffers/include/flatbuffers \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/third_party/gemmlowp \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/third_party/ruy \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Include/ \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/Core/Include/ \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/ \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/micro \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/micro/kernels \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/scheme \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/c \
+	-I $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/core/api/ \
+	-I $(srctree)/edge_impulse/model-parameters \
+	-I $(srctree)/edge_impulse/tflite-model \
+	-I $(srctree)/sensors \
+	-I $(srctree)/boostxl_sensors \
+	-I $(srctree)/audio_codec \
 
 SRC_C += \
-	$(notdir $(wildcard ../*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/TransformFunctions/*fft*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/CommonTables/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/TransformFunctions/*bit*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/MatrixFunctions/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/StatisticsFunctions/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/SupportFunctions/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ActivationFunctions/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/BasicMathFunctions/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ConcatenationFunctions/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ConvolutionFunctions/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/FullyConnectedFunctions/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/NNSupportFunctions/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/PoolingFunctions/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ReshapeFunctions/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/SoftmaxFunctions/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/mbedtls_hmac_sha256_sw/mbedtls/src/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/tensorflow/lite/c/*.c)) \
-	$(notdir $(wildcard ../edge_impulse/QCBOR/src/*.c)) \
-	$(notdir $(wildcard ../boostxl_sensors/*.c)) \
-	$(notdir $(wildcard ../audio_codec/*.c)) \
+	$(wildcard $(srctree)/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/TransformFunctions/*fft*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/CommonTables/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/TransformFunctions/*bit*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/MatrixFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/StatisticsFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/SupportFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ActivationFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/BasicMathFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ConcatenationFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ConvolutionFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/FullyConnectedFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/NNSupportFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/PoolingFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ReshapeFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/SoftmaxFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/mbedtls_hmac_sha256_sw/mbedtls/src/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/c/*.c) \
+	$(wildcard $(srctree)/edge_impulse/QCBOR/src/*.c) \
+	$(wildcard $(srctree)/boostxl_sensors/*.c) \
+	$(wildcard $(srctree)/audio_codec/*.c) \
 
 SRC_CXX += \
-	$(notdir $(wildcard ../*.cpp)) \
-	$(notdir $(wildcard ../edge_impulse/ingestion-sdk-platform/ti-launchxl/*.cpp)) \
-	$(notdir $(wildcard ../edge_impulse/ingestion-sdk-c/*.cpp)) \
-	$(notdir $(wildcard ../edge_impulse/repl/*.cpp)) \
-	$(notdir $(wildcard ../edge_impulse/firmware-sdk/*.cpp)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/porting/ti/*.cpp)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/dsp/dct/*.cpp)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/dsp/kissfft/*.cpp)) \
-	$(notdir $(wildcard ../edge_impulse/tflite-model/*.cpp)) \
-	$(notdir $(wildcard ../sensors/*.cpp)) \
+	$(wildcard $(srctree)/*.cpp) \
+	$(wildcard $(srctree)/edge_impulse/ingestion-sdk-platform/ti-launchxl/*.cpp) \
+	$(wildcard $(srctree)/edge_impulse/ingestion-sdk-c/*.cpp) \
+	$(wildcard $(srctree)/edge_impulse/repl/*.cpp) \
+	$(wildcard $(srctree)/edge_impulse/firmware-sdk/*.cpp) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/porting/ti/*.cpp) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/dsp/dct/*.cpp) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/dsp/kissfft/*.cpp) \
+	$(wildcard $(srctree)/edge_impulse/tflite-model/*.cpp) \
+	$(wildcard $(srctree)/sensors/*.cpp) \
 
 SRC_CC += \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/tensorflow/lite/kernels/*.cc)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/tensorflow/lite/kernels/internal/*.cc)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/tensorflow/lite/micro/*.cc)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/tensorflow/lite/micro/kernels/*.cc)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/tensorflow/lite/micro/memory_planner/*.cc)) \
-	$(notdir $(wildcard ../edge_impulse/edge-impulse-sdk/tensorflow/lite/core/api/*.cc)) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/kernels/*.cc) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/kernels/internal/*.cc) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/micro/*.cc) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/micro/kernels/*.cc) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/micro/memory_planner/*.cc) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/core/api/*.cc) \
 
-VPATH += ../ \
-	../edge_impulse/edge-impulse-sdk/porting/ti/ \
-	../edge_impulse/ingestion-sdk-platform/ti-launchxl \
-	../edge_impulse/ingestion-sdk-c \
-	../edge_impulse/repl \
-	../edge_impulse/QCBOR/src \
-	../edge_impulse/mbedtls_hmac_sha256_sw/mbedtls/src \
-	../edge_impulse/firmware-sdk \
-	../edge_impulse/edge-impulse-sdk/dsp/dct \
-	../edge_impulse/edge-impulse-sdk/dsp/kissfft \
-	../edge_impulse/edge-impulse-sdk/tensorflow/lite/kernels \
-	../edge_impulse/edge-impulse-sdk/tensorflow/lite/kernels/internal \
-	../edge_impulse/edge-impulse-sdk/tensorflow/lite/micro \
-	../edge_impulse/edge-impulse-sdk/tensorflow/lite/micro/kernels \
-	../edge_impulse/edge-impulse-sdk/tensorflow/lite/micro/memory_planner \
-	../edge_impulse/edge-impulse-sdk/tensorflow/lite/c/ \
-	../edge_impulse/edge-impulse-sdk/tensorflow/lite/core/api/ \
-	../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/TransformFunctions \
-	../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/CommonTables \
-	../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/MatrixFunctions \
-	../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/StatisticsFunctions \
-	../edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/SupportFunctions \
-	../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ActivationFunctions \
-	../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/BasicMathFunctions \
-	../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ConcatenationFunctions \
-	../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ConvolutionFunctions \
-	../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/FullyConnectedFunctions \
-	../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/NNSupportFunctions \
-	../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/PoolingFunctions \
-	../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ReshapeFunctions \
-	../edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/SoftmaxFunctions \
-	../edge_impulse/tflite-model \
-	../sensors \
-	../boostxl_sensors \
-	../audio_codec \
+VPATH += $(srctree)/ \
+	$(srctree)/edge_impulse/edge-impulse-sdk/porting/ti/ \
+	$(srctree)/edge_impulse/ingestion-sdk-platform/ti-launchxl \
+	$(srctree)/edge_impulse/ingestion-sdk-c \
+	$(srctree)/edge_impulse/repl \
+	$(srctree)/edge_impulse/QCBOR/src \
+	$(srctree)/edge_impulse/mbedtls_hmac_sha256_sw/mbedtls/src \
+	$(srctree)/edge_impulse/firmware-sdk \
+	$(srctree)/edge_impulse/edge-impulse-sdk/dsp/dct \
+	$(srctree)/edge_impulse/edge-impulse-sdk/dsp/kissfft \
+	$(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/kernels \
+	$(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/kernels/internal \
+	$(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/micro \
+	$(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/micro/kernels \
+	$(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/micro/memory_planner \
+	$(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/c/ \
+	$(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/core/api/ \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/TransformFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/CommonTables \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/MatrixFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/StatisticsFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/SupportFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ActivationFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/BasicMathFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ConcatenationFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ConvolutionFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/FullyConnectedFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/NNSupportFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/PoolingFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ReshapeFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/SoftmaxFunctions \
+	$(srctree)/edge_impulse/tflite-model \
+	$(srctree)/sensors \
+	$(srctree)/boostxl_sensors \
+	$(srctree)/audio_codec \
 
-OBJ = $(addprefix $(BUILD)/, $(SRC_C:.c=.obj))
-OBJ += $(addprefix $(BUILD)/, $(SRC_CXX:.cpp=.obj))
-OBJ += $(addprefix $(BUILD)/, $(SRC_CC:.cc=.obj))
+OBJ = $(SRC_C:$(srctree)/%.c=$(BUILD)/%.obj)
+OBJ += $(SRC_CXX:$(srctree)/%.cpp=$(BUILD)/%.obj)
+OBJ += $(SRC_CC:$(srctree)/%.cc=$(BUILD)/%.obj)
 OBJECTS += $(filter-out $(BUILD)/$(NAME).obj, $(OBJ))
 
 all: $(BUILD)/$(NAME).out
@@ -222,14 +225,17 @@ $(BUILD)/ti_drivers_config.obj: ti_drivers_config.c ti_drivers_config.h
 	@ $(CC) $(CFLAGS) $< -c -o $@
 
 $(BUILD)/%.obj: %.c | $(BUILD)
+	@mkdir -p $(@D)
 	@$(CC) $(CFLAGS) $(INC_APP) -c -o $@ $<
 	@echo $<
 
 $(BUILD)/%.obj: %.cpp
+	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(INC_APP) -c -o $@ $<
 	@echo $<
 
 $(BUILD)/%.obj: %.cc
+	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(INC_APP) -c -o $@ $<
 	@echo $<
 

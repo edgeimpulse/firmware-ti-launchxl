@@ -358,7 +358,7 @@ static void at_list_files() {
 }
 
 static void at_read_file_data(uint8_t *buffer, size_t size) {
-    base64_encode((const char*)buffer, size, ei_putc);
+    base64_encode((const char*)buffer, size, ei_putchar);
 }
 
 static void at_read_file(char *filename, char *baudrate_s) {
