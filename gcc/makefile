@@ -90,7 +90,6 @@ INC_APP += \
 	-I $(srctree)/edge_impulse/ingestion-sdk-platform/ti-launchxl \
 	-I $(srctree)/edge_impulse/ingestion-sdk-c \
 	-I $(srctree)/edge_impulse/repl \
-	-I $(srctree)/edge_impulse/QCBOR/inc \
 	-I $(srctree)/edge_impulse/mbedtls_hmac_sha256_sw \
 	-I $(srctree)/edge_impulse/edge-impulse-sdk \
 	-I $(srctree)/edge_impulse/edge-impulse-sdk/classifier \
@@ -135,7 +134,7 @@ SRC_C += \
 	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/SoftmaxFunctions/*.c) \
 	$(wildcard $(srctree)/edge_impulse/mbedtls_hmac_sha256_sw/mbedtls/src/*.c) \
 	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/c/*.c) \
-	$(wildcard $(srctree)/edge_impulse/QCBOR/src/*.c) \
+	$(wildcard $(srctree)/edge_impulse/firmware-sdk/QCBOR/src/*.c) \
 	$(wildcard $(srctree)/boostxl_sensors/*.c) \
 	$(wildcard $(srctree)/audio_codec/*.c) \
 
@@ -145,6 +144,7 @@ SRC_CXX += \
 	$(wildcard $(srctree)/edge_impulse/ingestion-sdk-c/*.cpp) \
 	$(wildcard $(srctree)/edge_impulse/repl/*.cpp) \
 	$(wildcard $(srctree)/edge_impulse/firmware-sdk/*.cpp) \
+	$(wildcard $(srctree)/edge_impulse/firmware-sdk/sensor-aq/*.cpp) \
 	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/porting/ti/*.cpp) \
 	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/dsp/dct/*.cpp) \
 	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/dsp/kissfft/*.cpp) \
@@ -164,9 +164,10 @@ VPATH += $(srctree)/ \
 	$(srctree)/edge_impulse/ingestion-sdk-platform/ti-launchxl \
 	$(srctree)/edge_impulse/ingestion-sdk-c \
 	$(srctree)/edge_impulse/repl \
-	$(srctree)/edge_impulse/QCBOR/src \
-	$(srctree)/edge_impulse/mbedtls_hmac_sha256_sw/mbedtls/src \
 	$(srctree)/edge_impulse/firmware-sdk \
+	$(srctree)/edge_impulse/firmware-sdk/QCBOR/src \
+	$(srctree)/edge_impulse/firmware-sdk/sensor-aq \
+	$(srctree)/edge_impulse/mbedtls_hmac_sha256_sw/mbedtls/src \
 	$(srctree)/edge_impulse/edge-impulse-sdk/dsp/dct \
 	$(srctree)/edge_impulse/edge-impulse-sdk/dsp/kissfft \
 	$(srctree)/edge_impulse/edge-impulse-sdk/tensorflow/lite/kernels \

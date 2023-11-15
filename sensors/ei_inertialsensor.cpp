@@ -27,7 +27,7 @@
 #include "firmware-sdk/ei_config_types.h"
 #include "ei_inertialsensor.h"
 #include "ei_device_ti_launchxl.h"
-#include "firmware-sdk/sensor_aq.h"
+#include "firmware-sdk/sensor-aq/sensor_aq.h"
 
 /* Constant defines -------------------------------------------------------- */
 #define CONVERT_G_TO_MS2    9.80665f

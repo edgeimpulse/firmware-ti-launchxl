@@ -37,7 +37,7 @@
 
 #include "firmware-sdk/ei_config_types.h"
 #include "sensor_aq_mbedtls_hs256.h"
-#include "sensor_aq_none.h"
+#include "firmware-sdk/sensor-aq/sensor_aq_none.h"
 #include "arm_math.h"
 #include "ti_drivers_config.h"
 #include "AudioCodec.h"
