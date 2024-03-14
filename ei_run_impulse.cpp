@@ -105,16 +105,7 @@ void run_nn(bool debug) {
             break;
         }
 
-        // print the predictions
-        ei_printf("Predictions (DSP: %d ms., Classification: %d ms., Anomaly: %d ms.): \n",
-                  result.timing.dsp, result.timing.classification, result.timing.anomaly);
-        for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++) {
-            ei_printf("    %s: \t%f\r\n", result.classification[ix].label, result.classification[ix].value);
-        }
-#if EI_CLASSIFIER_HAS_ANOMALY == 1
-        ei_printf("    anomaly score: %f\r\n", result.anomaly);
-#endif
-        ei_printf("Starting inferencing in 2 seconds...\n");
+        display_results(&result);
 
         // instead of wait_ms, we'll wait on the signal, this allows threads to cancel us...
         uint64_t end_ms = ei_read_timer_ms() + 2000;
@@ -185,19 +176,7 @@ void run_nn_continuous(bool debug)
 
         if (++print_results >= (EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW >> 1)) {
 
-            // print the predictions
-            ei_printf("Predictions (DSP: %d ms., Classification: %d ms., Anomaly: %d ms.): \n",
-                result.timing.dsp, result.timing.classification, result.timing.anomaly);
-            for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++) {
-                ei_printf("    %s: \t", result.classification[ix].label);
-                ei_printf_float(result.classification[ix].value);
-                ei_printf("\r\n");
-            }
-#if EI_CLASSIFIER_HAS_ANOMALY == 1
-            ei_printf("    anomaly score: ");
-            ei_printf_float(result.anomaly);
-            ei_printf("\r\n");
-#endif
+                display_results(&result);
                 print_results = 0;
         }
 
