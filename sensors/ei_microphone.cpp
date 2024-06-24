@@ -43,6 +43,7 @@
 #include "AudioCodec.h"
 #include <ti/drivers/I2S.h>
 #include "FreeRTOS.h"
+#include "edge-impulse-sdk/dsp/numpy.hpp"
 
 //#define ENABLE_DEBUG
 //#define ENABLE_MEMORY_DEBUG
@@ -168,12 +169,12 @@ extern ei_config_t *ei_config_get_config();
 
 /* Dummy functions for sensor_aq_ctx type */
 static size_t ei_write(const void*, size_t size, size_t count, EI_SENSOR_AQ_STREAM*)
-{    
+{
     return count;
 }
 
 static int ei_seek(EI_SENSOR_AQ_STREAM*, long int offset, int origin)
-{    
+{
     return 0;
 }
 
@@ -272,7 +273,7 @@ static void get_dsp_data(void (*callback)(void *buffer, uint32_t n_bytes))
 }
 
 
-static void finish_and_upload(char *filename, uint32_t sample_length_ms) {    
+static void finish_and_upload(char *filename, uint32_t sample_length_ms) {
 
     ei_printf("Done sampling, total bytes collected: %u\n", current_sample);
 
@@ -286,7 +287,7 @@ static void finish_and_upload(char *filename, uint32_t sample_length_ms) {
 
     ei_printf("OK\n");
 
-    EiDevice.set_state(eiStateIdle);    
+    EiDevice.set_state(eiStateIdle);
 }
 
 static int insert_ref(char *buffer, int hdrLength)
@@ -557,7 +558,7 @@ void ei_microphone_inference_reset_buffers(void)
  */
 int ei_microphone_audio_signal_get_data(size_t offset, size_t length, float *out_ptr)
 {
-    arm_q15_to_float(&inference.buffers[inference.buf_select ^ 1][offset], out_ptr, length);
+    ei::numpy::int16_to_float(&inference.buffers[inference.buf_select ^ 1][offset], out_ptr, length);
 #ifdef ENABLE_DEBUG
     ei_printf("get_data: %p\r\n", inference.buffers[inference.buf_select]);
 #endif
