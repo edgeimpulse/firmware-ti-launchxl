@@ -22,3 +22,4 @@ ti_drivers_config.c
 ti_drivers_config.h
 ti_utils_build_linker.cmd.genlibs
 ti_utils_runtime_model.gv
+create-arduino-library.sh
