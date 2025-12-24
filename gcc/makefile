@@ -121,6 +121,7 @@ SRC_C += \
 	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/CommonTables/*.c) \
 	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/TransformFunctions/*bit*.c) \
 	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/MatrixFunctions/*.c) \
+	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/BasicMathFunctions/*.c) \
 	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/StatisticsFunctions/*.c) \
 	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/SupportFunctions/*.c) \
 	$(wildcard $(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ActivationFunctions/*.c) \
@@ -182,6 +183,7 @@ VPATH += $(srctree)/ \
 	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/MatrixFunctions \
 	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/StatisticsFunctions \
 	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/SupportFunctions \
+	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/DSP/Source/BasicMathFunctions \
 	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ActivationFunctions \
 	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/BasicMathFunctions \
 	$(srctree)/edge_impulse/edge-impulse-sdk/CMSIS/NN/Source/ConcatenationFunctions \
