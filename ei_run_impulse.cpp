@@ -35,6 +35,7 @@
 /* Include ----------------------------------------------------------------- */
 #include "ei_device_ti_launchxl.h"
 #include "edge-impulse-sdk/classifier/ei_run_classifier.h"
+#include "edge-impulse-sdk/classifier/ei_print_results.h"
 #include "edge-impulse-sdk/dsp/numpy.hpp"
 #include "ei_microphone.h"
 #include "ei_inertialsensor.h"
@@ -117,7 +118,7 @@ void run_nn(bool debug) {
             break;
         }
 
-        display_results(&ei_default_impulse, &result);
+        ei_print_results(&ei_default_impulse, &result);
 
         // instead of wait_ms, we'll wait on the signal, this allows threads to cancel us...
         uint64_t end_ms = ei_read_timer_ms() + 2000;
@@ -188,7 +189,7 @@ void run_nn_continuous(bool debug)
 
         if (++print_results >= (EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW >> 1)) {
 
-                display_results(&ei_default_impulse, &result);
+                ei_print_results(&ei_default_impulse, &result);
                 print_results = 0;
         }
 
